@@ -106,8 +106,8 @@ async def get_toxic_time(video_id: str = "default text"):
         time_only = parts[0]
         word_only = parts[1]
 
-        test_data = [word_only]
-        predicted_label = pipeline.predict(test_data)
+        word_list = [word_only]
+        predicted_label = pipeline.predict(word_list)
         if predicted_label[0] != "No hate and offensive speech":
             time_list.append(time_only)
 
