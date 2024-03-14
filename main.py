@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from youtube_transcript_api import YouTubeTranscriptApi
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
@@ -13,6 +14,42 @@ import string
 nltk.download('stopwords')
 
 app = FastAPI()
+
+
+# Get Transcript with time from YouTube video
+def get_transcript_with_timing(video_id):
+    timed_transcript = []  # List to store timed transcript
+
+    try:
+        # Get the transcript for the video
+        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+
+        # Print each word with its corresponding start and end times
+        for segment in transcript:
+            text = segment['text']
+            start = segment['start']
+            end = start + segment['duration']
+
+            # Split the text into words
+            words = text.split()
+
+            # Calculate the duration per word
+            word_duration = segment['duration'] / len(words)
+
+            # Print each word with its start and end times
+            current_time = start
+            for word in words:
+                # Calculate end time for the word
+                word_end = current_time + word_duration
+                word_time = f"[{int(current_time)}, {word_end:.0f}] - {word}"
+
+                timed_transcript.append(word_time)
+                current_time = word_end
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    return timed_transcript
+
 
 # Load data
 df = pd.read_csv("data.csv")
@@ -61,7 +98,20 @@ print("Accuracy:", accuracy)
 
 @app.get("/toxic")
 async def get_toxic_time(video_id: str = "default text"):
-    return {"message": video_id}
+    transcript_with_timing = get_transcript_with_timing(video_id)
+    time_list = []
+
+    for line in transcript_with_timing:
+        parts = line.split("-")
+        time_only = parts[0]
+        word_only = parts[1]
+
+        test_data = [word_only]
+        predicted_label = pipeline.predict(test_data)
+        if predicted_label[0] != "No hate and offensive speech":
+            time_list.append(time_only)
+
+    return {"data": time_list}
 
 
 @app.get("/hello/{name}")
