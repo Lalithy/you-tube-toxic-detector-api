@@ -111,7 +111,12 @@ async def get_toxic_time(video_id: str = "default text"):
         if predicted_label[0] != "No hate and offensive speech":
             time_list.append(time_only)
 
-    return {"data": time_list}
+    parsed_output = [eval(timestamp_str) for timestamp_str in time_list]
+
+    # Convert the list of tuples to a list of lists
+    muted_segments = [list(segment) for segment in parsed_output]
+
+    return {"muted_segments": muted_segments}
 
 
 @app.get("/hello/{name}")
