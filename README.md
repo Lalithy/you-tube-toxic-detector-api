@@ -3,3 +3,5 @@
   - pip install scikit-learn
   - pip install nltk
   - pip install youtube-transcript-api
+  - pip install langdetect 
+  - pip install textblob
