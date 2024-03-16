@@ -16,6 +16,30 @@ nltk.download('stopwords')
 app = FastAPI()
 
 
+# Get Toxic time API
+@app.get("/toxic")
+async def get_toxic_time(video_id: str = "default text"):
+    transcript_with_timing = get_transcript_with_timing(video_id)
+    time_list = []
+
+    for line in transcript_with_timing:
+        parts = line.split("-")
+        time_only = parts[0]
+        word_only = parts[1]
+
+        word_list = [word_only]
+        predicted_label = pipeline.predict(word_list)
+        if predicted_label[0] != "No hate and offensive speech":
+            time_list.append(time_only)
+
+    parsed_output = [eval(timestamp_str) for timestamp_str in time_list]
+
+    # Convert the list of tuples to a list of lists
+    muted_segments = [list(segment) for segment in parsed_output]
+
+    return {"muted_segments": muted_segments}
+
+
 # Get Transcript with time from YouTube video
 def get_transcript_with_timing(video_id):
     timed_transcript = []  # List to store timed transcript
@@ -94,31 +118,3 @@ pipeline.fit(X_train, y_train)
 y_pred = pipeline.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
-
-
-@app.get("/toxic")
-async def get_toxic_time(video_id: str = "default text"):
-    transcript_with_timing = get_transcript_with_timing(video_id)
-    time_list = []
-
-    for line in transcript_with_timing:
-        parts = line.split("-")
-        time_only = parts[0]
-        word_only = parts[1]
-
-        word_list = [word_only]
-        predicted_label = pipeline.predict(word_list)
-        if predicted_label[0] != "No hate and offensive speech":
-            time_list.append(time_only)
-
-    parsed_output = [eval(timestamp_str) for timestamp_str in time_list]
-
-    # Convert the list of tuples to a list of lists
-    muted_segments = [list(segment) for segment in parsed_output]
-
-    return {"muted_segments": muted_segments}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
