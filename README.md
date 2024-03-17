@@ -8,7 +8,8 @@
   - pip install textblob
   - pip install uvicorn
   - pip install google-api-python-client
-  - pip install python-dotenv
+  - pip install python-dotenv 
 
+**Application run command -> python main.py**
 
 
