@@ -2,7 +2,7 @@ import logging
 import uvicorn
 from src.model.model_training import train_model, evaluate_model
 from src.utils.helpers import clean
-from src.api.fastapi_routes import app
+from src.api.api_routes import app
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
