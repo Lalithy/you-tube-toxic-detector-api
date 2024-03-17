@@ -4,16 +4,24 @@ import logging
 from googleapiclient.discovery import build
 from langdetect import detect
 from textblob import TextBlob
+import os
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
+# Load environment variables from .env file
+load_dotenv()
+
 # YouTube API Key
-API_KEY = 'AIzaSyCElif0q82NmTvvpn5xDGFgTUqs-hnwEYs'
+API_KEY = os.environ.get('YOUTUBE_API_KEY')
+if not API_KEY:
+    raise ValueError("YouTube API key not found in environment variables")
 
 # Initialize YouTube Data API Service
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 
+# The method provide list of comment in the video from the video id
 def get_video_comments(video_id):
     comments = []
     response = youtube.commentThreads().list(
@@ -36,6 +44,7 @@ def get_video_comments(video_id):
     return comments
 
 
+# The method provide sentiment status
 def get_sentiment(comment):
     analysis = TextBlob(comment)
     if analysis.sentiment.polarity > 0:
@@ -46,6 +55,7 @@ def get_sentiment(comment):
         return 'Negative'
 
 
+# The method provide list of transcript from the video
 def get_transcript_with_timing(video_id):
     timed_transcript = []  # List to store timed transcript
 
@@ -53,11 +63,9 @@ def get_transcript_with_timing(video_id):
         # Get the transcript for the video
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
 
-        # Print each word with its corresponding start and end times
         for segment in transcript:
             text = segment['text']
             start = segment['start']
-            end = start + segment['duration']
 
             # Split the text into words
             words = text.split()
@@ -65,7 +73,6 @@ def get_transcript_with_timing(video_id):
             # Calculate the duration per word
             word_duration = segment['duration'] / len(words)
 
-            # Print each word with its start and end times
             current_time = start
             for word in words:
                 # Calculate end time for the word
@@ -81,6 +88,7 @@ def get_transcript_with_timing(video_id):
     return timed_transcript
 
 
+# The is class do process of the toxic detect and analyze
 class VideoProcessor:
     def __init__(self, pipeline):
         self.pipeline = pipeline
