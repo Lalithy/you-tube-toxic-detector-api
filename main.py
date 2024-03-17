@@ -24,32 +24,42 @@ app = FastAPI()
 STOP_WORDS = set(stopwords.words('english'))
 
 
-# Get Toxic time API
 @app.get("/toxic")
 async def get_toxic_time(video_id: str = "default text"):
-    try:
-        transcript_with_timing = get_transcript_with_timing(video_id)
-        time_list = []
+    video_processor = VideoProcessor(pipeline)
+    return video_processor.get_toxic_segments(video_id)
 
+
+class VideoProcessor:
+    def __init__(self, pipeline):
+        self.pipeline = pipeline
+
+    def process_transcript(self, transcript_with_timing):
+        time_list = []
         for line in transcript_with_timing:
             parts = line.split("-")
             time_only = parts[0]
             word_only = parts[1]
 
             word_list = [word_only]
-            predicted_label = pipeline.predict(word_list)
+            predicted_label = self.pipeline.predict(word_list)
             if predicted_label[0] != "No hate and offensive speech":
                 time_list.append(time_only)
 
-        parsed_output = [eval(timestamp_str) for timestamp_str in time_list]
+        return [eval(timestamp_str) for timestamp_str in time_list]
 
-        # Convert the list of tuples to a list of lists
-        muted_segments = [list(segment) for segment in parsed_output]
+    def get_toxic_segments(self, video_id):
+        try:
+            transcript_with_timing = get_transcript_with_timing(video_id)
+            parsed_output = self.process_transcript(transcript_with_timing)
 
-        return {"muted_segments": muted_segments}
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+            # Convert the list of tuples to a list of lists
+            muted_segments = [list(segment) for segment in parsed_output]
+
+            return {"muted_segments": muted_segments}
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
+            raise HTTPException(status_code=500, detail="Internal server error")
 
 
 # Load data
