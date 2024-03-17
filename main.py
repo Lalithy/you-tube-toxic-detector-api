@@ -1,9 +1,13 @@
+from fastapi import FastAPI
 import logging
 import uvicorn
 from src.model.model_training import train_model, evaluate_model
 from src.utils.helpers import clean
-from src.api.api_routes import app
 import pandas as pd
+from src.api.api_routes import router as api_router
+
+app = FastAPI()
+app.include_router(api_router)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
