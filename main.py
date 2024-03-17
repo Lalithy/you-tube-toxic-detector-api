@@ -5,8 +5,25 @@ from src.model.model_training import train_model, evaluate_model
 from src.utils.helpers import clean
 import pandas as pd
 from src.api.api_routes import router as api_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Define allowed origins, methods, and headers
+origins = [
+    "http://localhost",
+    "http://localhost:4200",
+]
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
 app.include_router(api_router)
 
 logging.basicConfig(level=logging.INFO)
