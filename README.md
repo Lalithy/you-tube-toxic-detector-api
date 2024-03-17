@@ -7,4 +7,6 @@
   - pip install langdetect 
   - pip install textblob
   - pip install uvicorn
+  - pip install google-api-python-client
+
 

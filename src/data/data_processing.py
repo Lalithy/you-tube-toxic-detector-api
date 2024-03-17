@@ -1,8 +1,49 @@
 from fastapi import HTTPException
 from youtube_transcript_api import YouTubeTranscriptApi
 import logging
+from googleapiclient.discovery import build
+from langdetect import detect
+from textblob import TextBlob
 
 logger = logging.getLogger(__name__)
+
+# YouTube API Key
+API_KEY = 'AIzaSyCElif0q82NmTvvpn5xDGFgTUqs-hnwEYs'
+
+# Initialize YouTube Data API Service
+youtube = build('youtube', 'v3', developerKey=API_KEY)
+
+
+def get_video_comments(video_id):
+    comments = []
+    response = youtube.commentThreads().list(
+        part='snippet',
+        videoId=video_id,
+        textFormat='plainText'
+    ).execute()
+
+    for item in response['items']:
+        comment = item['snippet']['topLevelComment']['snippet']['textDisplay']
+        # Check if the comment is not empty and contains visible characters
+        if comment.strip() and comment.strip().replace(' ', ''):
+            try:
+                # Attempt language detection
+                if detect(comment) == 'en':
+                    comments.append(comment)
+            except:
+                pass  # Skip comments that cause language detection errors
+
+    return comments
+
+
+def get_sentiment(comment):
+    analysis = TextBlob(comment)
+    if analysis.sentiment.polarity > 0:
+        return 'Positive'
+    elif analysis.sentiment.polarity == 0:
+        return 'Neutral'
+    else:
+        return 'Negative'
 
 
 def get_transcript_with_timing(video_id):
