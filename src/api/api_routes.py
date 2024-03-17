@@ -5,6 +5,8 @@ from src.model.model_training import pipeline
 
 app = FastAPI()
 
+
+# The API provides list of start seconds and end sounds on toxic connect
 @app.get("/toxic")
 async def get_toxic_time(video_id: str = "default text"):
     video_processor = VideoProcessor(pipeline)
