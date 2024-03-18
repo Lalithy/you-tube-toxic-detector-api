@@ -49,7 +49,7 @@ def load_data(file_path):
 def main():
     try:
         # Load data
-        df = load_data("src/data/data.csv")
+        df = load_data("src/data/data_set.csv")
 
         # Train model
         pipeline, X_test, y_test = train_model(df)
