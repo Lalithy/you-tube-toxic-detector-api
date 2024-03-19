@@ -77,10 +77,11 @@ def get_transcript_with_timing(video_id):
             for word in words:
                 # Calculate end time for the word
                 word_end = current_time + word_duration
-                word_time = f"[{int(current_time)}, {word_end:.0f}] - {word}"
+                word_time = f"[{int(current_time) - 1}, {word_end:.0f}] - {word}"
 
                 timed_transcript.append(word_time)
                 current_time = word_end
+
     except Exception as e:
         logger.error(f"An error occurred while fetching transcript: {e}")
         raise
