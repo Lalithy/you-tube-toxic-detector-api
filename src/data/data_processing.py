@@ -106,7 +106,7 @@ class VideoProcessor:
             if predicted_label[0] != "No hate and offensive speech":
                 time_list.append(time_only)
 
-                print(word_only)
+                print(time_only + " - " + word_only)
 
         return [eval(timestamp_str) for timestamp_str in time_list]
 
