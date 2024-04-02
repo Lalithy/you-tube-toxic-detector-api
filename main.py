@@ -49,13 +49,13 @@ def load_data(file_path):
 def main():
     try:
         # Load data
-        df = load_data("src/data/data_set.csv")
+        df = load_data("src/data/data_set_copy.csv")
 
         # Train model
-        pipeline, X_test, y_test = train_model(df)
+        pipeline, x_test, y_test = train_model(df)
 
         # Model evaluation
-        evaluate_model(pipeline, X_test, y_test)
+        evaluate_model(pipeline, x_test, y_test)
 
         # Run FastAPI app
         uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")

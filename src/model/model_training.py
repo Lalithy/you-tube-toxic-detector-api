@@ -19,19 +19,19 @@ pipeline = Pipeline([
 
 def train_model(df):
     try:
-        X = df["comments"]
+        x = df["comments"]
         y = df["label"]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-        pipeline.fit(X_train, y_train)
-        return pipeline, X_test, y_test
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
+        pipeline.fit(x_train, y_train)
+        return pipeline, x_test, y_test
     except Exception as e:
         logger.error(f"An error occurred while training model: {e}")
         raise
 
 
-def evaluate_model(pipeline, X_test, y_test):
+def evaluate_model(pipeline, x_test, y_test):
     try:
-        y_pred = pipeline.predict(X_test)
+        y_pred = pipeline.predict(x_test)
         accuracy = accuracy_score(y_test, y_pred)
         logger.info(f"Model accuracy: {accuracy}")
     except Exception as e:
